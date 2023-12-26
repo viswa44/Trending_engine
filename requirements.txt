@@ -4,3 +4,4 @@ seaborn
 flask
 gradio
 psycopg2
+dvc

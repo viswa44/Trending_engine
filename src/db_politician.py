@@ -4,11 +4,12 @@ import jsonify
 import sys
 
 class get_LC():
+    
     def __init__(self):
         pass
     
+    def connect_to_db(self):
     
-    def get_user_data(self):
     
         try:
 
@@ -17,26 +18,47 @@ class get_LC():
                                     user="postgres",
                                     password="!pSKPdJ3awx*9J9Xq",
                                     port="5432")
+            
             print("database connected successfully")
         except:
             print("db not connected..try hard boy")
 
-        cur = conn.cursor()
-        return cur
-        # cur.execute('select "likesCount","commentsCount"  from post_by_citizens ')
-        # commentsCount= []
-        # likesCount=[]
+        def get_user_data(self):
+            if not self.conn:
+                self.connect_to_db()
 
-        # for row in cur.fetchall():
-        #     commentsCount.append(row[0])
-        #     likesCount.append(row[1])
+            cur = conn.cursor()
+            cur.execute('select "likesCount","commentsCount"  from post_by_citizens ')
+            commentsCount= []
+            likesCount=[]
 
-        # cur.close()
-        # conn.close()
-        # return commentsCount,likesCount 
+            for row in cur.fetchall():
+                commentsCount.append(row[0])
+                likesCount.append(row[1])
 
+            cur.close()
+        
+            return commentsCount,likesCount 
+
+    def findmax_likes(self):
+        if self.conn:
+            self.connect_to_db()
+
+        cur = self.conn.cursor()
+        cur.execute("SELECT ID FROM your_table ORDER BY LikesCount DESC LIMIT 1")
+        max_likes_ids = cur.fetchone()[0]
+        print(f"ID with maximum likes: {max_likes_id}")
+        
+        cur.close()
+
+        return max_likes_ids
+        
+    
+    
+    
 if __name__ =="__main__":
     lc_instance = get_LC() 
-    cur = lc_instance.get_user_data()
+    max_likes_id = lc_instance.findmax_likes()
+    print(max_likes_id)
 
     
