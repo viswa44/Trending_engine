@@ -1,0 +1,28 @@
+import psycopg2
+import jsonify
+import sys
+# from src.db_politician import get_LC()
+# from get_LC import get_user_data
+
+conn = psycopg2.connect(database="nxtgovtestdb",
+                                    host="database-nxtgov.cidtw9qpn6wx.ap-south-1.rds.amazonaws.com",
+                                    user="postgres",
+                                    password="!pSKPdJ3awx*9J9Xq",
+                                    port="5432")
+print("database connected successfully")
+            
+cur = conn.cursor()
+    
+cur.execute('select "likesCount","commentsCount"  from post_by_citizens ')
+commentsCount_citizens= []
+likesCount_citizens=[]
+
+for row in cur.fetchall():
+    commentsCount_citizens.append(row[0])
+    likesCount_citizens.append(row[1])
+    
+print("commentsCount_citizensr",commentsCount_citizens)
+print("likesCount_citizens:",likesCount_citizens)
+
+cur.close()
+conn.close()
