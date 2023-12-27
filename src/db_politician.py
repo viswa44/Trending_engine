@@ -2,6 +2,7 @@ import psycopg2
 import jsonify
 import pandas as pd
 import sys
+import uuid
 
 class get_LC():
     
@@ -67,6 +68,11 @@ class get_LC():
         else:
             print("No database connection")
             return []
+        
+        
+        SELECT column_name
+FROM table_name
+WHERE ID_column = your_desired_ID;
     '''      
     def findmax_likes(self,likesCount):
         max_likes = max(likesCount)
@@ -84,15 +90,52 @@ class get_LC():
     
     def findmax_likes_id(self,likesCount):
         max_likes_id_no = pd.Series(likesCount).idxmax()
+        if self.conn:
+            cur = self.conn.cursor()
+            cur.execute('''
+                        SELECT "citizenId" 
+                        FROM post_by_citizens
+                        WHERE "likesCount" = (SELECT MAX("likesCount") FROM post_by_citizens)
+            ''')
+            rows = cur.fetchall()
+            for row in rows:
+                print(f"Liked Citizen ID: {row[0]}")
+            
+            cur.close()
+            
         return max_likes_id_no
     
     def findmax_comments_id(self,commentsCount):
         max_comments_id_no = pd.Series(commentsCount).idxmax()
+        if self.conn:
+            cur = self.conn.cursor()
+            cur.execute('''
+                        SELECT "citizenId" 
+                        FROM post_by_citizens
+                        WHERE "likesCount" = (SELECT MAX("commentsCount") FROM post_by_citizens)
+            ''')
+            rows = cur.fetchall()
+            for row in rows:
+                print(f"Commented Citizen ID: {row[0]}")
+            
+            cur.close()
 
         
         return max_comments_id_no
     def findmax_shares_id(self,shareCount):
         max_shares_id_no = pd.Series(shareCount).idxmax()
+        if self.conn:
+            cur = self.conn.cursor()
+            cur.execute('''
+                        SELECT "citizenId" 
+                        FROM post_by_citizens
+                        WHERE "likesCount" = (SELECT MAX("shareCount") FROM post_by_citizens)
+            ''')
+            rows = cur.fetchall()
+            for row in rows:
+                print(f"shared Citizen ID: {row[0]}")
+            
+            cur.close()
         return max_shares_id_no
     
     
@@ -113,9 +156,9 @@ if __name__ =="__main__":
     print("max comments of all post",max_comments)
     print("max shares of all posts",max_shares)
 
-    print("max likes of all post",max_likes_id)
-    print("max comments of all post",max_comments_id)
-    print("max shares of all posts",max_shares_id)
+    print("max likes - ID",max_likes_id)
+    print("max comments - ID",max_comments_id)
+    print("max shares - ID",max_shares_id)
     
     # max_index = pd.Series(likesCount).idxmax()
     # print("Maximum Index position:",max_index) 
