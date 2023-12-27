@@ -89,21 +89,23 @@ class get_LC():
     
     
     def findmax_likes_id(self,likesCount):
-        max_likes_id_no = pd.Series(likesCount).idxmax()
-        if self.conn:
-            cur = self.conn.cursor()
-            cur.execute('''
-                        SELECT "citizenId" 
-                        FROM post_by_citizens
-                        WHERE "likesCount" = (SELECT MAX("likesCount") FROM post_by_citizens)
-            ''')
-            rows = cur.fetchall()
-            for row in rows:
-                print(f"Liked Citizen ID: {row[0]}")
-            
-            cur.close()
-            
-        return max_likes_id_no
+        max_shares_id_no = pd.Series(shareCount).idxmax()
+        if max_shares_id_no > 0:
+            if self.conn:
+                cur = self.conn.cursor()
+                cur.execute('''
+                            SELECT "citizenId" 
+                            FROM post_by_citizens
+                            WHERE "likesCount" = (SELECT MAX("shareCount") FROM post_by_citizens)
+                ''')
+                rows = cur.fetchall()
+                for row in rows:
+                    print(f"shared Citizen ID: {row[0]}")
+                
+                cur.close()
+            return max_shares_id_no
+        else:
+             return "No share count"
     
     def findmax_comments_id(self,commentsCount):
         max_comments_id_no = pd.Series(commentsCount).idxmax()
