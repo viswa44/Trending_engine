@@ -30,22 +30,24 @@ class get_LC():
 
         if self.conn:
             cur = self.conn.cursor()
-            cur.execute('SELECT "likesCount", "commentsCount" FROM post_by_citizens')
+            cur.execute('SELECT "likesCount", "commentsCount","shareCount" FROM post_by_citizens')
             commentsCount = []
             likesCount = []
+            shareCount =[]
 
             for row in cur.fetchall():
                 likesCount.append(row[0])
                 commentsCount.append(row[1])
+                shareCount.append(row[2])
 
             cur.close()
-            return likesCount, commentsCount
+            return likesCount, commentsCount, shareCount
         else:
             print("No database connection")
-            return [], []
+            return [], [], []
 
 
-
+    '''
     def findmax_likes(self):
 
         if self.conn:
@@ -65,17 +67,58 @@ class get_LC():
         else:
             print("No database connection")
             return []
+    '''      
+    def findmax_likes(self,likesCount):
+        max_likes = max(likesCount)
+        
+        return max_likes
+    def findmax_comments(self,commentsCount):
+        max_comments = max(commentsCount)
+        
+        return max_comments
+    def findmax_shares(self,shareCount):
+        max_shares = max(shareCount)
+        
+        return max_shares
+    
+    
+    def findmax_likes_id(self,likesCount):
+        max_likes_id_no = pd.Series(likesCount).idxmax()
+        return max_likes_id_no
+    
+    def findmax_comments_id(self,commentsCount):
+        max_comments_id_no = pd.Series(commentsCount).idxmax()
+
+        
+        return max_comments_id_no
+    def findmax_shares_id(self,shareCount):
+        max_shares_id_no = pd.Series(shareCount).idxmax()
+        return max_shares_id_no
     
     
     
 if __name__ =="__main__":
     lc_instance = get_LC()
-    likesCount, commentsCount = lc_instance.get_user_data()
-    print("maxlikes",max(likesCount))
+    likesCount, commentsCount, shareCount = lc_instance.get_user_data() 
     
+    max_likes = lc_instance.findmax_likes(likesCount)
+    max_comments = lc_instance.findmax_comments(commentsCount)
+    max_shares = lc_instance.findmax_shares(shareCount)
     
-    max_index = pd.Series(likesCount).idxmax()
-    print("Maximum Index position:",max_index) 
+    max_likes_id = lc_instance.findmax_likes_id(likesCount)
+    max_comments_id = lc_instance.findmax_comments_id(commentsCount)
+    max_shares_id = lc_instance.findmax_shares_id(shareCount)
+    
+    print("max likes of all post",max_likes)
+    print("max comments of all post",max_comments)
+    print("max shares of all posts",max_shares)
+
+    print("max likes of all post",max_likes_id)
+    print("max comments of all post",max_comments_id)
+    print("max shares of all posts",max_shares_id)
+    
+    # max_index = pd.Series(likesCount).idxmax()
+    # print("Maximum Index position:",max_index) 
 
     # # print(commentsCount)
     # max_likes_id= lc_instance.findmax_likes()
