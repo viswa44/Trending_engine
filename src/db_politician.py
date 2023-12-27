@@ -71,8 +71,8 @@ class get_LC():
         
         
         SELECT column_name
-FROM table_name
-WHERE ID_column = your_desired_ID;
+        FROM table_name
+        WHERE ID_column = your_desired_ID;
     '''      
     def findmax_likes(self,likesCount):
         max_likes = max(likesCount)
@@ -122,6 +122,9 @@ WHERE ID_column = your_desired_ID;
 
         
         return max_comments_id_no
+    
+    
+    
     def findmax_shares_id(self,shareCount):
         max_shares_id_no = pd.Series(shareCount).idxmax()
         if self.conn:

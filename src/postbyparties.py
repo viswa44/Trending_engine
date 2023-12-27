@@ -1,28 +1,180 @@
 import psycopg2
 import jsonify
+import pandas as pd
 import sys
-# from src.db_politician import get_LC()
-# from get_LC import get_user_data
+import uuid
 
-conn = psycopg2.connect(database="nxtgovtestdb",
+class get_LC():
+    
+    def __init__(self):
+        self.conn = None
+        self.connect_to_db()  # Establish connection upon initialization
+    
+    
+    def connect_to_db(self):
+    
+    
+        try:
+
+            self.conn = psycopg2.connect(database="nxtgovtestdb",
                                     host="database-nxtgov.cidtw9qpn6wx.ap-south-1.rds.amazonaws.com",
                                     user="postgres",
                                     password="!pSKPdJ3awx*9J9Xq",
                                     port="5432")
-print("database connected successfully")
             
-cur = conn.cursor()
-    
-cur.execute('select "likesCount","commentsCount"  from post_by_parties ')
-commentsCount_parties= []
-likesCount_parties=[]
+            print("database connected successfully")
+        except Exception as e:
+            self.conn = None
+            print(f"DB connection error: {str(e)}")
 
-for row in cur.fetchall():
-    commentsCount_parties.append(row[0])
-    likesCount_parties.append(row[1])
-    
-print("commentsCount_leader",commentsCount_parties)
-print("likesCount_leader:",likesCount_parties)
+    def get_user_data(self):
 
-cur.close()
-conn.close()
+        if self.conn:
+            cur = self.conn.cursor()
+            cur.execute('SELECT "likesCount", "commentsCount","shareCount" FROM post_by_parties')
+            commentsCount = []
+            likesCount = []
+            shareCount =[]
+
+            for row in cur.fetchall():
+                likesCount.append(row[0])
+                commentsCount.append(row[1])
+                shareCount.append(row[2])
+
+            cur.close()
+            return likesCount, commentsCount, shareCount
+        else:
+            print("No database connection")
+            return [], [], []
+
+
+    '''
+    def findmax_likes(self):
+
+        if self.conn:
+            cur = self.conn.cursor()
+            cur.execute('SELECT "id","likesCount" FROM post_by_citizens ORDER BY "likesCount" DESC LIMIT 1')
+            max_likes_id,likes_count = cur.fetchone()
+
+            if max_likes_id:
+                print(f"ID with maximum likes: {max_likes_id[0]}")
+                # print(f"likes count:{likes_count[0]}")
+            else:
+                print("No data found")      
+
+            cur.close()
+            return max_likes_id
+        
+        else:
+            print("No database connection")
+            return []
+        
+        
+        SELECT column_name
+        FROM table_name
+        WHERE ID_column = your_desired_ID;
+    '''      
+    def findmax_likes(self,likesCount):
+        filtered_likes = [like for like in likesCount if like is not None]
+
+        max_likes = max(filtered_likes)
+        
+        return max_likes
+    def findmax_comments(self,commentsCount):
+        filtered_comments = [ comment for comment in commentsCount if comment is not None]
+
+        max_comments = max(filtered_comments)
+        
+        return max_comments
+    def findmax_shares(self,shareCount):
+
+        
+        filtered_shares = [ share for share in shareCount if share is not None]
+        max_shares = max(filtered_shares)
+        return max_shares
+    
+    
+    def findmax_likes_id(self,likesCount):
+        max_likes_id_no = pd.Series(likesCount).idxmax()
+        if self.conn:
+            cur = self.conn.cursor()
+            cur.execute('''
+                        SELECT "partyId" 
+                        FROM post_by_parties
+                        WHERE "likesCount" = (SELECT MAX("likesCount") FROM post_by_parties)
+            ''')
+            rows = cur.fetchall()
+            for row in rows:
+                print(f"Liked Citizen ID: {row[0]}")
+            
+            cur.close()
+            
+        return max_likes_id_no
+    
+    def findmax_comments_id(self,commentsCount):
+        max_comments_id_no = pd.Series(commentsCount).idxmax()
+        if self.conn:
+            cur = self.conn.cursor()
+            cur.execute('''
+                        SELECT "partyId" 
+                        FROM post_by_parties
+                        WHERE "likesCount" = (SELECT MAX("commentsCount") FROM post_by_parties)
+            ''')
+            rows = cur.fetchall()
+            for row in rows:
+                print(f"Commented Party ID: {row[0]}")
+            
+            cur.close()
+
+        
+        return max_comments_id_no
+    
+    
+    
+    def findmax_shares_id(self,shareCount):
+        max_shares_id_no = pd.Series(shareCount).idxmax()
+        if self.conn:
+            cur = self.conn.cursor()
+            cur.execute('''
+                        SELECT "partyId" 
+                        FROM post_by_parties
+                        WHERE "likesCount" = (SELECT MAX("shareCount") FROM post_by_parties)
+            ''')
+            rows = cur.fetchall()
+            for row in rows:
+                print(f"shared Party ID: {row[0]}")
+            
+            cur.close()
+        return max_shares_id_no
+    
+    
+    
+if __name__ =="__main__":
+    lc_instance = get_LC()
+    likesCount, commentsCount, shareCount = lc_instance.get_user_data() 
+    
+    max_likes = lc_instance.findmax_likes(likesCount)
+    max_comments = lc_instance.findmax_comments(commentsCount)
+    max_shares = lc_instance.findmax_shares(shareCount)
+    
+    max_likes_id = lc_instance.findmax_likes_id(likesCount)
+    max_comments_id = lc_instance.findmax_comments_id(commentsCount)
+    max_shares_id = lc_instance.findmax_shares_id(shareCount)
+    
+    print("max likes of all post",max_likes)
+    print("max comments of all post",max_comments)
+    print("max shares of all posts",max_shares)
+
+    print("max likes - ID",max_likes_id)
+    print("max comments - ID",max_comments_id)
+    print("max shares - ID",max_shares_id)
+    
+    # max_index = pd.Series(likesCount).idxmax()
+    # print("Maximum Index position:",max_index) 
+
+    # # print(commentsCount)
+    # max_likes_id= lc_instance.findmax_likes()
+    # print(max_likes_id)
+    # # print(likes_count)
+
+    
