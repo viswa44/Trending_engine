@@ -165,9 +165,10 @@ class get_LC():
                 print("No data found")
 
             cur.close()
+            return rows
         else:
             print("No database connection")
-    
+
     
     
 if __name__ =="__main__":
