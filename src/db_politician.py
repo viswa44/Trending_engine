@@ -86,6 +86,34 @@ class get_LC():
         max_shares = max(shareCount)
         
         return max_shares
+    def max_engagments(self,likesCount,commentsCount,shareCount):
+        if self.conn:
+            
+            
+            cur = self.conn.cursor()
+            cur.execute('''
+                        SELECT "id","citizenId","likesCount","commentsCount","shareCount",("likesCount"+"commentsCount"+"shareCount") AS totalengagment
+                        FROM post_by_citizens
+                        ORDER BY totalengagment DESC
+                        LIMIT 10
+                        ''')
+            # id,citizenid,totalengagemnt = cur.fetchall()
+            rows = cur.fetchall()
+            
+            if rows:
+                for idx, rows in enumerate(rows, 1):
+                    id, citizen_id,likes,comments,shares,total_engagement = rows
+                    print(f"Rank {idx}: ID: {id}, Citizen ID: {citizen_id},likes:{likes},comments:{comments},shares:{shares} Total Engagement: {total_engagement}")
+            else:
+                print("No data found")
+
+            cur.close()
+        else:
+            print("No database connection")
+
+
+                                                                                                                                                                                                
+
     
     
     def findmax_likes_id(self,likesCount):
@@ -149,7 +177,8 @@ class get_LC():
 if __name__ =="__main__":
     lc_instance = get_LC()
     likesCount, commentsCount, shareCount = lc_instance.get_user_data() 
-    
+    max_eng =  lc_instance.max_engagments(likesCount,commentsCount,shareCount)
+    '''
     max_likes = lc_instance.findmax_likes(likesCount)
     max_comments = lc_instance.findmax_comments(commentsCount)
     max_shares = lc_instance.findmax_shares(shareCount)
@@ -165,7 +194,7 @@ if __name__ =="__main__":
     print("max likes - ID",max_likes_id)
     print("max comments - ID",max_comments_id)
     print("max shares - ID",max_shares_id)
-    
+    '''
     # max_index = pd.Series(likesCount).idxmax()
     # print("Maximum Index position:",max_index) 
 
