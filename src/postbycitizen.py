@@ -156,11 +156,11 @@ class get_LC():
                         ''')
             # id,citizenid,totalengagemnt = cur.fetchall()
             rows = cur.fetchall()
-            
+            # print(rows)
             if rows:
                 for idx, rows in enumerate(rows, 1):
-                    id, citizen_id,likes,comments,shares,total_engagement = rows
-                    print(f"Rank {idx}: ID: {id}, Citizen ID: {citizen_id},likes:{likes},comments:{comments},shares:{shares} Total Engagement: {total_engagement}")
+                    id,citizen_id,likes,comments,shares,total_engagement = rows
+                    #print(f"Rank {idx}: ID: {id}, Citizen ID: {citizen_id},likes:{likes},comments:{comments},shares:{shares} Total Engagement: {total_engagement}")
             else:
                 print("No data found")
 
